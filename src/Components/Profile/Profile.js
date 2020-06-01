@@ -2,9 +2,9 @@ import React from "react";
 import { useQuery, gql } from "@apollo/client";
 import { Box, Text, Image, Spinner } from "@chakra-ui/core";
 
-const USER = gql`
+const USER = gql`query ($userid: uuid!)
   {
-    user(where: {user_id: {_eq: "b8a1df15-2f63-4b0b-a5db-aeadbb99dee6"}}) {
+    user(where: {user_id: {_eq: $userid}}) {
     email
     username
     }
