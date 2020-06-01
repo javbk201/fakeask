@@ -2,9 +2,15 @@ import React from "react";
 import { Heading,
          Box,
          Skeleton,
-         Button} from "@chakra-ui/core";
+         Button,
+         Textarea,
+         Text} from "@chakra-ui/core";
 
-import { useMutation, useSubscription, gql } from "@apollo/client";
+
+import { useMutation,
+         useSubscription,
+         gql
+       } from "@apollo/client";
 
 
 const QUESTIONS = gql`subscription MyQuery {
@@ -38,20 +44,28 @@ const Question = () => {
 
   const [deleteQuestion] = useMutation(DELETE_QUESTION);
 
-  let [value, setValue] = React.useState("");
+  const [updateQuestion] = useMutation(UPDATE_QUESTION);
 
-  let handleInputChange = e => {
-    let inputValue = e.target.value;
+  const [value, setValue] = React.useState("");
+
+  const handleInputChange = e => {
+    const inputValue = e.target.value;
     setValue(inputValue);
   };
 
-  // let handledeleteQuestion = () => {
-  //   deleteQuestion({ variables: { id:  })
-  //   .then(() => setValue(""))
-  //   .catch((e) => {
-  //     setValue(e.message);
-  //   });
-  // }
+  function handleDeleteQuestion(id_question) {
+    deleteQuestion( {variables: {id: id_question} });
+  }
+
+  function handleUpdateQuestion(id_question) {
+    if (value !== "") {
+        updateQuestion( {variables: {id: id_question, answer: value} })
+        .catch((e) => {
+          console.log(e.message);
+        });
+        setValue("");
+    }
+  }
 
   if (loading) return (
     <Box spacing={5}>
@@ -85,22 +99,31 @@ const Question = () => {
         0 1px 1px 0 rgba(0, 0, 0, .07)"
         spacing={5}
         w={1/2}
-        h={150}
-        key={id}
         >
         <Heading as="h3">{content}</Heading>
-        <Box p={6} mt={5} textAlign="left">
-          <Button
-            variantColor="teal"
-            variant="ghost"
-            >
-            Answer
-          </Button>
+        <Box p={6} textAlign="left">
+          { (answer !== null )
+            ?<Text m={2} fontSize="4xl" >{answer}</Text>
+            :<>
+            <Textarea
+              m={2}
+              variant="unstyled"
+              onChange={handleInputChange}
+              placeholder="Answer"/>
+            <Button
+              variantColor="teal"
+              variant="ghost"
+              onClick={() => handleUpdateQuestion(id)}
+              >
+              Answer
+            </Button>
+            </>
+          }
           <Button
             rightIcon="delete"
             variantColor="teal"
             variant="ghost"
-            key={id}
+            onClick={() => handleDeleteQuestion(id) }
             >
             Delete
           </Button>
