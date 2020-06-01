@@ -1,6 +1,9 @@
 import React from "react";
 import { ThemeProvider, CSSReset } from "@chakra-ui/core";
 import { render } from "react-dom";
+import { BrowserRouter, Switch, Route } from "react-router-dom";
+import { getMainDefinition } from "@apollo/client/utilities";
+import { WebSocketLink } from "@apollo/link-ws";
 import {
   ApolloProvider,
   ApolloClient,
@@ -8,15 +11,10 @@ import {
   InMemoryCache,
   split,
 } from "@apollo/client";
-import { getMainDefinition } from "@apollo/client/utilities";
-import { WebSocketLink } from "@apollo/link-ws";
-
 
 import Login from "./Components/Login/Login";
-import Profile from "./Components/Profile/Profile";
+import User from "./Components/User/User";
 import Nav from "./Components/Nav/Nav";
-import Ask from "./Components/Ask/Ask";
-import Questions from "./Components/Questions/Questions";
 import Register from "./Components/Register/Register";
 
 const GRAPHQL_ENDPOINT = "fake-askme.herokuapp.com/v1/graphql";
@@ -49,25 +47,27 @@ const client = new ApolloClient({
   link: splitLink,
 });
 
-
-const login = false;
-const register = false;
-
 const App = () => (
-  <ApolloProvider client={client}>
-    <ThemeProvider>
-      <CSSReset />
-        <Nav />
-        {login ?
-          <ThemeProvider>
-            <Profile />
-            <Ask />
-            <Questions />
-          </ThemeProvider>
-        : (!register ? <Login /> : <Register />)
-        }
-    </ThemeProvider>
-  </ApolloProvider>
+  <BrowserRouter>
+    <ApolloProvider client={client}>
+      <ThemeProvider>
+        <CSSReset />
+        <Switch>
+          <Route path="/">
+            <Login />
+          </Route>
+          <Route path="/register">
+            <Nav />
+            <Register />
+          </Route>
+          <Route path="/user">
+            <Nav />
+            <User />
+          </Route>
+        </Switch>
+      </ThemeProvider>
+    </ApolloProvider>
+  </BrowserRouter>
 );
 
 render(<App />, document.getElementById("root"));
