@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React from "react";
 import { Textarea, Box, Button } from "@chakra-ui/core";
 import { useMutation, gql } from "@apollo/client";
 
@@ -25,7 +25,7 @@ const Ask = () => {
     if (value !== "") {
       addQuestion({ variables: { content: value } })
       .catch((e) => {
-        setValue(e.message);
+        console.log(e.message);
       });
       setValue("");
     }
@@ -40,6 +40,7 @@ const Ask = () => {
         <Box m={5} display="block">
           <Textarea
             variant="unstyled"
+            value={value}
             size={["700", "166"]}
             onChange={handleInputChange}
             placeholder="Ask me a question" />
