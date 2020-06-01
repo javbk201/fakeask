@@ -1,4 +1,4 @@
-import React, {useState}  from "react";
+import React  from "react";
 import { useMutation, gql } from "@apollo/client";
 import { Box,
          Input,
@@ -7,15 +7,17 @@ import { Box,
          Heading,
          Button,
          Flex,
-         Stack,
-         useToast } from "@chakra-ui/core";
+         Stack } from "@chakra-ui/core";
 
 
 const ADD_USER = gql`mutation ($email: String!, $username: String!, $pass: String!) {
-                      insert_user(objects: {email: $email, username: $username, pass: $pass}) {
-                                    affected_rows
-                                }
-                        }`;
+  insert_user(objects: {email: $email, username: $username, pass: $pass}) {
+    affected_rows
+    returning {
+      user_id
+    }
+  }
+}`;
 
 const Register = () => {
 
@@ -25,30 +27,37 @@ const Register = () => {
 
   const handleClick = () => setShow(!show);
 
-  let [user, setUser] = React.useState("");
-  let [Email, setEmail] = React.useState("");
-  let [password, setPassword] = React.useState("");
+  const [user, setUser] = React.useState("");
+  const [Email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [userId, setUserid] = React.useState("");
 
-  let handleUserChange = e => {
-    let inputValue = e.target.value;
+  const handleUserChange = e => {
+    const inputValue = e.target.value;
     setUser(inputValue);
   };
 
-  let handleEmailChange = e => {
-    let inputValue = e.target.value;
+  const handleEmailChange = e => {
+    const inputValue = e.target.value;
     setEmail(inputValue);
   };
 
-  let handlePassChange = e => {
-    let inputValue = e.target.value;
+  const handlePassChange = e => {
+    const inputValue = e.target.value;
     setPassword(inputValue);
   };
 
-  let handleAddUser = () => {
-    if ((Email != "") && (user != "") && (password != "")) {
+  const handleUserId = id => {
+    const idValue = id;
+    setUserid(idValue);
+  }
+
+  const handleAddUser = () => {
+    if ((Email !== "") && (user !== "") && (password !== "")) {
 
       addUser({ variables: { email: Email, username: user, pass: password } })
-      .then(() => {
+      .then((user_id) => {
+        handleUserId(user_id.data.insert_user.returning[0].user_id);
         setUser("");
         setEmail("");
         setPassword("");
@@ -76,11 +85,13 @@ const Register = () => {
         <Box p={1}>
           <Input
             m={2}
+            value={Email}
             variant="unstyled"
             placeholder="Email"
             size="lg"
             onChange={handleEmailChange} />
           <Input
+            value={user}
             m={2}
             variant="unstyled"
             placeholder="Username"
@@ -88,6 +99,7 @@ const Register = () => {
             onChange={handleUserChange} />
           <InputGroup m={2} size="lg">
               <Input
+                value={password}
                 variant="unstyled"
                 type={show ? "text" : "password"}
                 placeholder="Password"
